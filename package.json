@@ -1,0 +1,12 @@
+{
+  "name": "zoom-clone",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix backend run dev",
+    "start": "npm --prefix backend start"
+  },
+  "dependencies": {
+    "http-status": "^2.1.0"
+  }
+}
