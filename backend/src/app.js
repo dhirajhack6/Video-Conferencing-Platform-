@@ -4,7 +4,6 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 import dotenv from "dotenv";
 dotenv.config();
 
-
 import express from "express";
 import { createServer } from "node:http";
 
@@ -24,8 +23,7 @@ app.use(express.json({ limit: "40kb" }));
 app.use(express.urlencoded({ limit: "40kb", extended: true }));
 
 app.set("port", process.env.PORT || 8000);
-app.use("api/v1/users", userRoutes);
-
+app.use("/api/v1/users", userRoutes);
 
 app.get("/home", (req, res) => {
   return res.json({ hello: "worlds"  });
@@ -47,3 +45,6 @@ const start = async () => {
 };
 
 start();
+
+
+
