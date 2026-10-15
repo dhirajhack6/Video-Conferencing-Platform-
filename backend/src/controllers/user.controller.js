@@ -4,30 +4,51 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 
 const login = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password } = req.body ?? {};
 
   if (!username || !password) {
-    return res.status(400).json({ message: "Please provide" });
+    return res.status(400).json({
+      message: "Please provide username and password",
+    });
   }
+
   try {
+    console.log("Login attempt for:", username);
+
     const user = await User.findOne({ username });
-    if (!User) {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .json({ message: "User not found" });
-    }
-    if (bcrypt.compare(password, user.password)) {
-      let token = crypto.randomBytes(20).toString("hex");
 
-      user.token = token;
-
-      await user.save();
-      return res.status(httpStatus.OK).json({ token: token });
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
-  } catch (e) {
-    return res.status(500).json({ message: "Something went wrong" });
+
+    console.log("User found:", Boolean(user));
+    console.log("Password field exists:", Boolean(user.password));
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid username or password",
+      });
+    }
+
+    const token = crypto.randomBytes(20).toString("hex");
+
+    user.token = token;
+    await user.save();
+
+    return res.status(200).json({ token });
+  } catch (error) {
+    console.error("LOGIN ERROR:", error);
+
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
   }
 };
+
 const register = async (req, res) => {
   const { name, username, password } = req.body;
 

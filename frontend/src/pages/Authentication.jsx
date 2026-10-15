@@ -53,6 +53,7 @@ export default function Authentication() {
     try {
       if (formState === 0) {
         await handleLogin(username, password);
+        
       }
       if (formState === 1) {
         let result = await handleRegister(name, username, password);

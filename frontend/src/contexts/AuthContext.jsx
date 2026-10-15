@@ -30,20 +30,49 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // const handleLogin = async (username, password) => {
+    //     try {
+    //         let request = await client.post("/login", {
+    //             username: username,
+    //             password: password
+    //         });
+    //         if (request.status === httpStatus.OK) {
+    //             localStorage.setItem("token", request.data.token);
+    //             router("/home");
+    //         }
+    //     } catch (err) {
+    //         throw err;
+    //     }
+    // };
+
     const handleLogin = async (username, password) => {
-        try {
-            let request = await client.post("/login", {
-                username: username,
-                password: password
-            });
-            if (request.status === httpStatus.OK) {
-                localStorage.setItem("token", request.data.token);
-                router("/home");
-            }
-        } catch (err) {
-            throw err;
+    try {
+        const response = await client.post("/login", {
+            username,
+            password,
+        });
+
+        console.log("Login response:", response.data);
+
+        if (response.status === 200) {
+            localStorage.setItem("token", response.data.token);
+            router("/home");
         }
-    };
+    } catch (error) {
+        console.error("Login error:", error);
+
+        if (error.response) {
+            console.error("Backend response:", error.response.data);
+            console.error("Status code:", error.response.status);
+        } else if (error.request) {
+            console.error("No response received from backend");
+        } else {
+            console.error("Request setup error:", error.message);
+        }
+
+        throw error;
+    }
+};
 
     const data = {
         userData, setUserData, handleRegister, handleLogin
