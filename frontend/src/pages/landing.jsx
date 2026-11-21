@@ -1,7 +1,10 @@
 import React from 'react';
 import "../App.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 export default function LandingPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="landingPageContainer">
       <div>
@@ -10,8 +13,8 @@ export default function LandingPage() {
             <h2>Apna Video Call</h2>
           </div>
           <div className='navlist'>
-            <p onClick={() => window.location.href = "/join"}>Join as Guest</p>
-            <p onClick={() => window.location.href = "/authentication"}>Register</p>
+            <p onClick={() => navigate("/join")}>Join as Guest</p>
+            <p onClick={() => navigate("/authentication")}>Register</p>
             <div role="button">
               <Link to="/authentication" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <p>Login</p>
@@ -40,4 +43,3 @@ export default function LandingPage() {
     </div>
   );
 }
-

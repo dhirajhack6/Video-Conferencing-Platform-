@@ -19,8 +19,9 @@ import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import servers from "../environment"
 
-const server_url = "http://localhost:8000";
+const server_url = "server.prod";
 
 const connections = {};
 const peerConfigConnections = {

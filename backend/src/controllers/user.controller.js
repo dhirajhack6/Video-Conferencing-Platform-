@@ -45,14 +45,20 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  const { name, username, password } = req.body;
+  const { name, username, password } = req.body ?? {};
+
+  if (!name || !username || !password) {
+    return res.status(400).json({
+      message: "Please provide name, username, and password",
+    });
+  }
 
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res
-        .status(httpStatus.FOUND)
-        .json({ message: "User already exist" });
+        .status(400)
+        .json({ message: "User already exists with this username" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -64,9 +70,10 @@ const register = async (req, res) => {
     });
 
     await newUser.save();
-    res.status(httpStatus.CREATED).json({ message: "User Register" });
+    return res.status(201).json({ message: "User registered successfully! Please sign in." });
   } catch (e) {
-    res.json({ message: `Something went wrong ${e}` });
+    console.error("REGISTER ERROR:", e);
+    return res.status(500).json({ message: `Something went wrong: ${e.message}` });
   }
 };
 
