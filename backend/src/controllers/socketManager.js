@@ -15,14 +15,20 @@ export const connectToSocket = (server) => {
     });
 
     io.on("connection", (socket) => {
-        console.log("something is connected", socket.id);
+        console.log("Client connected:", socket.id);
 
         socket.on("join-call", (path) => {
+            if (!path) return;
+
             if (connections[path] === undefined) {
                 connections[path] = [];
             }
-            connections[path].push(socket.id);
+            if (!connections[path].includes(socket.id)) {
+                connections[path].push(socket.id);
+            }
             timeOnline[socket.id] = new Date();
+
+            console.log(`Socket ${socket.id} joined room [${path}]. Participants in room:`, connections[path]);
 
             for (let a = 0; a < connections[path].length; a++) {
                 io.to(connections[path][a]).emit("user-joined", socket.id, connections[path]);
@@ -64,7 +70,7 @@ export const connectToSocket = (server) => {
                     data: data,
                     "socket-id-sender": socket.id
                 });
-                console.log("message", matchingRoom, ":", sender, data);
+                console.log("message in room [", matchingRoom, "] from", sender, ":", data);
 
                 connections[matchingRoom].forEach((elem) => {
                     io.to(elem).emit("chat-message", data, sender, socket.id);
@@ -73,21 +79,22 @@ export const connectToSocket = (server) => {
         });
 
         socket.on("disconnect", () => {
-            var diffTime = Math.abs(timeOnline[socket.id] - new Date());
+            console.log("Client disconnected:", socket.id);
             for (const [k, v] of Object.entries(connections)) {
-                for (let a = 0; a < v.length; a++) {
-                    if (v[a] === socket.id) {
-                        for (let b = 0; b < connections[k].length; b++) {
-                            io.to(connections[k][b]).emit("user-left", socket.id);
-                        }
-
-                        var index = connections[k].indexOf(socket.id);
-                        connections[k].splice(index, 1);
-
-                        if (connections[k].length === 0) {
-                            delete connections[k];
-                        }
+                if (v.includes(socket.id)) {
+                    for (let b = 0; b < connections[k].length; b++) {
+                        io.to(connections[k][b]).emit("user-left", socket.id);
                     }
+
+                    const index = connections[k].indexOf(socket.id);
+                    if (index !== -1) {
+                        connections[k].splice(index, 1);
+                    }
+
+                    if (connections[k].length === 0) {
+                        delete connections[k];
+                    }
+                    break;
                 }
             }
             delete timeOnline[socket.id];
